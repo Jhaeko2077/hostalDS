@@ -1,31 +1,49 @@
 <?php
+session_start();
 include("../conexion.php");
 
-$usuario = $_POST['usuario'];
-$contrasena = $_POST['contrasena'];
+// Recibir y limpiar datos
+$usuario = trim($_POST['usuario'] ?? '');
+$contrasena = trim($_POST['contrasena'] ?? '');
 
-$query = "SELECT * FROM Empleado WHERE usuario = '$usuario'";
-$resultado = mysqli_query($conn, $query);
+// Validar que los campos no estén vacíos
+if(empty($usuario) || empty($contrasena)){
+    echo "<script>alert('Por favor completa todos los campos'); window.history.back();</script>";
+    exit();
+}
 
-if(mysqli_num_rows($resultado) > 0){
-    $empleado = mysqli_fetch_assoc($resultado);
+// Preparar consulta segura
+$stmt = $conn->prepare("SELECT * FROM Empleado WHERE usuario = ?");
+$stmt->bind_param("s", $usuario);
+$stmt->execute();
+$resultado = $stmt->get_result();
+
+if($resultado->num_rows > 0){
+    $empleado = $resultado->fetch_assoc();
 
     if(password_verify($contrasena, $empleado['contrasena'])){
+        // Cookie "Recordar usuario" opcional
         if(isset($_POST['recordar'])){
-            setcookie('usuario_empleado', $usuario, time() + (86400 * 30), "/");
+            setcookie('usuario_empleado', $usuario, time() + (86400 * 30), "/"); // 30 días
         }
 
-        session_start();
+        // Iniciar sesión
         $_SESSION['usuario_empleado'] = $usuario;
         $_SESSION['tipo_empleado'] = $empleado['tipo'];
 
-        // 🔁 Redirección al panel del empleado
-        header("Location: ../index/empleadoIndex.html");
+        // Redirección al panel del empleado
+        header("Location: ../index/empleadoIndex.php");
         exit();
     } else {
         echo "<script>alert('Contraseña incorrecta'); window.history.back();</script>";
+        exit();
     }
 } else {
     echo "<script>alert('Usuario no encontrado'); window.history.back();</script>";
+    exit();
 }
+
+// Cerrar statement y conexión
+$stmt->close();
+$conn->close();
 ?>

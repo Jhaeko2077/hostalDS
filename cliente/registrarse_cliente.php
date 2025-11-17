@@ -10,22 +10,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST["email"]);
     $telefono = trim($_POST["telefono"]);
     $usuario = trim($_POST["usuario"]);
-    $contrasena = password_hash($_POST["contrasena"], PASSWORD_BCRYPT);
+    $contrasena = $_POST["contrasena"];
 
-    $sql = "INSERT INTO Cliente (nombres, apellidos, dni, email, telefono, contrasena, usuario)
-            VALUES (?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-
-    if ($stmt) {
-        $stmt->bind_param("sssssss", $nombres, $apellidos, $dni, $email, $telefono, $contrasena, $usuario);
-        if ($stmt->execute()) {
-            $mensaje = "Registro exitoso. ¡Bienvenido, $nombres!";
-        } else {
-            $mensaje = "Error al registrar: " . $stmt->error;
-        }
-        $stmt->close();
+    // Validar campos vacíos
+    if(empty($nombres) || empty($apellidos) || empty($dni) || empty($email) || empty($usuario) || empty($contrasena)){
+        $mensaje = "Por favor completa todos los campos obligatorios.";
     } else {
-        $mensaje = "Error en la conexión con la base de datos.";
+        // Verificar si el usuario ya existe
+        $stmt_check = $conn->prepare("SELECT id FROM Cliente WHERE usuario = ? OR email = ? OR dni = ?");
+        $stmt_check->bind_param("sss", $usuario, $email, $dni);
+        $stmt_check->execute();
+        $result_check = $stmt_check->get_result();
+        
+        if($result_check->num_rows > 0){
+            $mensaje = "El usuario, email o DNI ya está registrado. Por favor usa otros datos.";
+            $stmt_check->close();
+        } else {
+            $stmt_check->close();
+            
+            // Hash de la contraseña
+            $contrasena_hash = password_hash($contrasena, PASSWORD_BCRYPT);
+
+            $sql = "INSERT INTO Cliente (nombres, apellidos, dni, email, telefono, contrasena, usuario)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+
+            if ($stmt) {
+                $stmt->bind_param("sssssss", $nombres, $apellidos, $dni, $email, $telefono, $contrasena_hash, $usuario);
+                if ($stmt->execute()) {
+                    $mensaje = "Registro exitoso. ¡Bienvenido, " . htmlspecialchars($nombres) . "! <a href='login_cliente.php'>Inicia sesión aquí</a>";
+                } else {
+                    $mensaje = "Error al registrar: " . $stmt->error;
+                }
+                $stmt->close();
+            } else {
+                $mensaje = "Error en la conexión con la base de datos.";
+            }
+        }
     }
 }
 ?>

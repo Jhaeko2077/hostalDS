@@ -1,4 +1,11 @@
 <?php
+// Verificar sesión de administrador (solo administradores pueden gestionar empleados)
+session_start();
+if(!isset($_SESSION['usuario_admin'])){
+    header("Location: ../index.html");
+    exit();
+}
+
 include("../conexion.php");
 $result = $conn->query("SELECT * FROM Empleado ORDER BY id ASC");
 ?>
@@ -10,6 +17,7 @@ $result = $conn->query("SELECT * FROM Empleado ORDER BY id ASC");
   <link rel="stylesheet" href="../estilos.css">
 </head>
 <body>
+  <?php include("../includes/navegacion.php"); ?>
   <div class="container">
     <h1>Gestión de Empleados</h1>
 
@@ -61,7 +69,7 @@ $result = $conn->query("SELECT * FROM Empleado ORDER BY id ASC");
             <td><input type="email" name="email" value="<?= $row['email'] ?>"></td>
             <td><input type="text" name="telefono" value="<?= $row['telefono'] ?>"></td>
             <td><input type="text" name="usuario" value="<?= $row['usuario'] ?>"></td>
-            <td><input type="text" name="contrasena" value="<?= $row['contrasena'] ?>"></td>
+            <td><input type="password" name="contrasena" placeholder="Dejar vacío para no cambiar"></td>
             <td><input type="text" name="tipo" value="<?= $row['tipo'] ?>"></td>
             <td>
               <button type="submit" name="actualizar" class="btn actualizar">✏️</button>

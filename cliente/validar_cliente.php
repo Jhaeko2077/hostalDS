@@ -32,7 +32,7 @@ if($resultado->num_rows > 0){
         $_SESSION['usuario_cliente'] = $usuario;
 
         // Redirección al panel del cliente
-        header("Location: ../index/clienteIndex.html");
+        header("Location: ../index/clienteIndex.php");
         exit();
     } else {
         echo "<script>alert('Contraseña incorrecta'); window.history.back();</script>";

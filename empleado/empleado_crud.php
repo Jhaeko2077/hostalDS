@@ -1,46 +1,61 @@
 <?php
+// Verificar sesión de administrador (solo administradores pueden gestionar empleados)
+session_start();
+if(!isset($_SESSION['usuario_admin'])){
+    header("Location: ../index.html");
+    exit();
+}
+
 include("../conexion.php");
 
 // Crear
 if (isset($_POST['crear'])) {
-    $nombres = $_POST['nombres'];
-    $apellidos = $_POST['apellidos'];
-    $dni = $_POST['dni'];
-    $email = $_POST['email'];
-    $telefono = $_POST['telefono'];
+    $nombres = trim($_POST['nombres']);
+    $apellidos = trim($_POST['apellidos']);
+    $dni = trim($_POST['dni']);
+    $email = trim($_POST['email']);
+    $telefono = trim($_POST['telefono']);
+    $usuario = trim($_POST['usuario']);
     $contrasena = password_hash($_POST["contrasena"], PASSWORD_BCRYPT);
-    $tipo = $_POST['tipo'];
+    $tipo = trim($_POST['tipo']);
 
-    $sql = "INSERT INTO Empleado (nombres, apellidos, dni, email, telefono, contrasena, usuario, tipo)
-            VALUES ('$nombres', '$apellidos', '$dni', '$email', '$telefono', '$contrasena', '$usuario', '$tipo')";
-    $conn->query($sql);
+    $stmt = $conn->prepare("INSERT INTO Empleado (nombres, apellidos, dni, email, telefono, contrasena, usuario, tipo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssssss", $nombres, $apellidos, $dni, $email, $telefono, $contrasena, $usuario, $tipo);
+    $stmt->execute();
+    $stmt->close();
     header("Location: empleados.php");
     exit();
 }
 
 // Actualizar
 if (isset($_POST['actualizar'])) {
-    $id = $_POST['id'];
-    $nombres = $_POST['nombres'];
-    $apellidos = $_POST['apellidos'];
-    $dni = $_POST['dni'];
-    $email = $_POST['email'];
-    $telefono = $_POST['telefono'];
-    $usuario = $_POST['usuario'];
-    $tipo = $_POST['tipo'];
+    $id = trim($_POST['id']);
+    $nombres = trim($_POST['nombres']);
+    $apellidos = trim($_POST['apellidos']);
+    $dni = trim($_POST['dni']);
+    $email = trim($_POST['email']);
+    $telefono = trim($_POST['telefono']);
+    $usuario = trim($_POST['usuario']);
+    $tipo = trim($_POST['tipo']);
 
-    $sql = "UPDATE Empleado 
-            SET nombres='$nombres', apellidos='$apellidos', dni='$dni', email='$email', telefono='$telefono', usuario='$usuario', tipo='$tipo'
-            WHERE id='$id'";
-    $conn->query($sql);
+    $stmt = $conn->prepare("UPDATE Empleado 
+            SET nombres=?, apellidos=?, dni=?, email=?, telefono=?, usuario=?, tipo=?
+            WHERE id=?");
+    $stmt->bind_param("ssssssss", $nombres, $apellidos, $dni, $email, $telefono, $usuario, $tipo, $id);
+    $stmt->execute();
+    $stmt->close();
     header("Location: empleados.php");
     exit();
 }
 
 // Eliminar
 if (isset($_GET['eliminar'])) {
-    $id = $_GET['eliminar'];
-    $conn->query("DELETE FROM Empleado WHERE id='$id'");
+    $id = trim($_GET['eliminar']);
+    $stmt = $conn->prepare("DELETE FROM Empleado WHERE id=?");
+    $stmt->bind_param("s", $id);
+    $stmt->execute();
+    $stmt->close();
     header("Location: empleados.php");
     exit();
 }

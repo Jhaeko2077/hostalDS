@@ -1,4 +1,11 @@
 <?php
+// Verificar sesión (clientes, empleados y administradores pueden acceder)
+session_start();
+if(!isset($_SESSION['usuario_cliente']) && !isset($_SESSION['usuario_empleado']) && !isset($_SESSION['usuario_admin'])){
+    header("Location: ../index.html");
+    exit();
+}
+
 include("../conexion.php");
 
 // Traer datos relacionados
@@ -24,6 +31,7 @@ $tiposPago = $conn->query("SELECT id, descripcion FROM tipoPago");
   <link rel="stylesheet" href="../estilos.css">
 </head>
 <body>
+  <?php include("../includes/navegacion.php"); ?>
   <div class="container">
     <h1>Gestión de Reservas</h1>
 

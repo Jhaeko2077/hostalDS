@@ -1,4 +1,11 @@
 <?php
+// Verificar sesión de empleado o administrador
+session_start();
+if(!isset($_SESSION['usuario_empleado']) && !isset($_SESSION['usuario_admin'])){
+    header("Location: ../index.html");
+    exit();
+}
+
 include("../conexion.php");
 
 // Obtenemos los datos relacionados
@@ -26,6 +33,7 @@ $servicios = $conn->query("SELECT id, descripcion FROM Servicios");
   <link rel="stylesheet" href="../estilos.css">
 </head>
 <body>
+  <?php include("../includes/navegacion.php"); ?>
   <div class="container">
     <h1>Gestión de Detalle de Servicios por Habitación</h1>
 

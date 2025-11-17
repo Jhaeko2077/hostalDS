@@ -1,4 +1,11 @@
 <?php
+// Verificar sesión de empleado o administrador
+session_start();
+if(!isset($_SESSION['usuario_empleado']) && !isset($_SESSION['usuario_admin'])){
+    header("Location: ../index.html");
+    exit();
+}
+
 include("../conexion.php");
 $result = $conn->query("SELECT * FROM tipoPago ORDER BY id ASC");
 ?>
@@ -10,6 +17,7 @@ $result = $conn->query("SELECT * FROM tipoPago ORDER BY id ASC");
   <link rel="stylesheet" href="../estilos.css">
 </head>
 <body>
+  <?php include("../includes/navegacion.php"); ?>
   <div class="container">
     <h1>Gestión de Tipos de Pago</h1>
 

@@ -1,4 +1,11 @@
 <?php
+// Verificar sesión de empleado o administrador (solo ellos pueden gestionar clientes)
+session_start();
+if(!isset($_SESSION['usuario_empleado']) && !isset($_SESSION['usuario_admin'])){
+    header("Location: ../index.html");
+    exit();
+}
+
 include("../conexion.php");
 $result = $conn->query("SELECT * FROM Cliente ORDER BY id ASC");
 ?>
@@ -148,6 +155,7 @@ table th, table td {
   </style>
 </head>
 <body>
+  <?php include("../includes/navegacion.php"); ?>
   <div class="container">
     <h1>Gestión de Clientes</h1>
 
@@ -194,7 +202,7 @@ table th, table td {
             <td><input type="text" name="dni" value="<?= $row['dni'] ?>"></td>
             <td><input type="email" name="email" value="<?= $row['email'] ?>"></td>
             <td><input type="text" name="telefono" value="<?= $row['telefono'] ?>"></td>
-            <td><input type="text" name="contrasena" value="<?= $row['contrasena'] ?>"></td>
+            <td><input type="password" name="contrasena" placeholder="Dejar vacío para no cambiar"></td>
             <td><input type="text" name="usuario" value="<?= $row['usuario'] ?>"></td>
             <td>
               <button type="submit" name="actualizar" class="btn actualizar">✏️</button>

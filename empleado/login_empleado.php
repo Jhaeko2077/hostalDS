@@ -1,4 +1,12 @@
 <?php
+session_start();
+
+// Si ya está logueado, redirigir al panel
+if(isset($_SESSION['usuario_empleado'])){
+    header("Location: ../index/empleadoIndex.php");
+    exit();
+}
+
 if(isset($_COOKIE['usuario_empleado'])){
     $usuarioGuardado = $_COOKIE['usuario_empleado'];
 } else {
