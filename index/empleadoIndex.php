@@ -63,6 +63,7 @@ $tipo = $_SESSION['tipo_empleado'] ?? '';
 
         <div class="formulario">
             <div class="input-group">
+                <a href="dashboard.php" class="btn" style="background: #3b82f6;">📊 Dashboard</a>
                 <a href="../cliente/clientes.php" class="btn">Clientes</a>
                 <a href="../detalleReserva/detallesReservas.php" class="btn">Reservas</a>
                 <a href="../detalleServicio/detallesServicios.php" class="btn">Servicios Detallados</a>
