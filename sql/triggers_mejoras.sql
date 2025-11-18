@@ -257,13 +257,13 @@ SELECT
     h.tipo,
     h.estado,
     CASE 
-        WHEN h.estado = 'Disponible' THEN 'Sí'
+        WHEN h.estado = 'Disponible' COLLATE utf8mb4_unicode_ci THEN 'Sí' COLLATE utf8mb4_unicode_ci
         WHEN EXISTS (
             SELECT 1 FROM detalleReserva dr 
             WHERE dr.idHab = h.codigo 
             AND CURDATE() BETWEEN dr.fecha_inicio AND dr.fecha_fin
-        ) THEN 'No - Reservada'
-        ELSE 'No - ' || h.estado
+        ) THEN 'No - Reservada' COLLATE utf8mb4_unicode_ci
+        ELSE CONCAT('No - ', h.estado) COLLATE utf8mb4_unicode_ci
     END as disponible_ahora
 FROM Habitaciones h;
 
