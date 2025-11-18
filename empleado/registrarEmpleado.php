@@ -1,83 +1,180 @@
 <?php 
-include("../conexion.php"); // conexión a la BD
+require_once("../includes/functions.php");
+include("../conexion.php");
 
 $mensaje = "";
+$mensaje_tipo = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nombres = trim($_POST["nombres"]);
-    $apellidos = trim($_POST["apellidos"]);
-    $dni = trim($_POST["dni"]);
-    $email = trim($_POST["email"]);
-    $telefono = trim($_POST["telefono"]);
-    $usuario = trim($_POST["usuario"]);
-    $tipo = trim($_POST["tipo"]); // tipo de empleado (ej: "Recepcionista", "Secretaria")
-    $contrasena = password_hash($_POST["contrasena"], PASSWORD_BCRYPT);
+    $nombres = sanitize_input($_POST["nombres"]);
+    $apellidos = sanitize_input($_POST["apellidos"]);
+    $dni = sanitize_input($_POST["dni"]);
+    $email = sanitize_input($_POST["email"]);
+    $telefono = sanitize_input($_POST["telefono"] ?? '');
+    $usuario = sanitize_input($_POST["usuario"]);
+    $tipo = sanitize_input($_POST["tipo"]);
+    $contrasena = $_POST["contrasena"];
 
-    $sql = "INSERT INTO Empleado (id, nombres, apellidos, dni, email, telefono, contrasena, usuario, tipo)
-            VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-
-    if ($stmt) {
-        $stmt->bind_param("ssssssss", $nombres, $apellidos, $dni, $email, $telefono, $contrasena, $usuario, $tipo);
-        if ($stmt->execute()) {
-            $mensaje = "Empleado registrado exitosamente. ¡Bienvenido, $nombres!";
-        } else {
-            $mensaje = "Error al registrar empleado: " . $stmt->error;
-        }
-        $stmt->close();
+    // Validar campos vacíos
+    if(empty($nombres) || empty($apellidos) || empty($dni) || empty($email) || empty($usuario) || empty($contrasena) || empty($tipo)){
+        $mensaje = "Por favor completa todos los campos obligatorios.";
+        $mensaje_tipo = "error";
     } else {
-        $mensaje = "Error en la conexión con la base de datos.";
+        // Validaciones adicionales
+        if (!validate_email($email)) {
+            $mensaje = "El email no es válido.";
+            $mensaje_tipo = "error";
+        } elseif (!validate_dni($dni)) {
+            $mensaje = "El DNI debe tener 8 dígitos.";
+            $mensaje_tipo = "error";
+        } else {
+            // Verificar si el usuario, email o DNI ya existe
+            if (user_exists($conn, 'Empleado', 'usuario', $usuario) || 
+                user_exists($conn, 'Empleado', 'email', $email) || 
+                user_exists($conn, 'Empleado', 'dni', $dni)) {
+                $mensaje = "El usuario, email o DNI ya está registrado. Por favor usa otros datos.";
+                $mensaje_tipo = "error";
+            } else {
+                // Hash de la contraseña
+                $contrasena_hash = password_hash($contrasena, PASSWORD_BCRYPT);
+
+                // El ID se generará automáticamente por el trigger
+                $sql = "INSERT INTO Empleado (nombres, apellidos, dni, email, telefono, contrasena, usuario, tipo)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $stmt = $conn->prepare($sql);
+
+                if ($stmt) {
+                    $stmt->bind_param("ssssssss", $nombres, $apellidos, $dni, $email, $telefono, $contrasena_hash, $usuario, $tipo);
+                    if ($stmt->execute()) {
+                        $mensaje = "Empleado registrado exitosamente. ¡Bienvenido, " . htmlspecialchars($nombres) . "!";
+                        $mensaje_tipo = "success";
+                    } else {
+                        $mensaje = "Error al registrar empleado: " . htmlspecialchars($stmt->error);
+                        $mensaje_tipo = "error";
+                    }
+                    $stmt->close();
+                } else {
+                    $mensaje = "Error en la conexión con la base de datos.";
+                    $mensaje_tipo = "error";
+                }
+            }
+        }
     }
 }
+
+$page_title = "Registro de Empleado";
+include("../includes/head.php");
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Registro de Empleado</title>
-    <link rel="stylesheet" href="../loginStyle.css">
-    <style>
-        .mensaje {
-            text-align: center;
-            margin-bottom: 15px;
-            font-weight: 600;
-            color: #f5c542;
-        }
-        .login-container a {
-            display: block;
-            text-align: center;
-            color: #f5c542;
-            text-decoration: none;
-            margin-top: 15px;
-            font-size: 0.9em;
-            transition: all 0.3s ease;
-        }
-        .login-container a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <h2>Registrar Empleado</h2>
 
-        <?php if ($mensaje != ""): ?>
-            <div class="mensaje"><?= $mensaje ?></div>
-        <?php endif; ?>
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-white to-primary/5 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 animate-fade-in">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 animate-scale-in">
+            <!-- Logo y Título -->
+            <div class="text-center mb-8">
+                <div class="flex justify-center mb-4">
+                    <div class="bg-primary/10 p-4 rounded-full">
+                        <i class="ph ph-briefcase text-primary text-6xl animate-bounce-subtle"></i>
+                    </div>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-dark mb-2">Registrar Empleado</h2>
+                <p class="text-gray-dark/70">Crea tu cuenta de empleado</p>
+            </div>
 
-        <form method="POST" action="">
-            <input type="text" name="nombres" placeholder="Nombres" required>
-            <input type="text" name="apellidos" placeholder="Apellidos" required>
-            <input type="text" name="dni" placeholder="DNI" required>
-            <input type="email" name="email" placeholder="Correo electrónico" required>
-            <input type="text" name="telefono" placeholder="Teléfono">
-            <input type="text" name="usuario" placeholder="Nombre de usuario" required>
-            <input type="text" name="tipo" placeholder="Tipo de empleado" required>
-            <input type="password" name="contrasena" placeholder="Contraseña" required>
-            
-            <button type="submit">Crear cuenta</button>
-            <a href="login_empleado.php">¿Ya tienes cuenta? Inicia sesión</a>
-        </form>
+            <!-- Mensaje -->
+            <?php if ($mensaje != ""): ?>
+                <div class="mb-6 p-4 rounded-lg <?= $mensaje_tipo == 'success' ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-red-100 text-red-700 border border-red-300' ?> animate-slide-down">
+                    <div class="flex items-center space-x-2">
+                        <i class="ph <?= $mensaje_tipo == 'success' ? 'ph-check-circle' : 'ph-warning-circle' ?> text-xl"></i>
+                        <p class="font-medium"><?= $mensaje ?></p>
+                    </div>
+                    <?php if ($mensaje_tipo == 'success'): ?>
+                        <a href="login_empleado.php" class="block mt-3 text-primary hover:text-primary-dark font-semibold transition-colors duration-300 group">
+                            <i class="ph ph-arrow-right inline mr-2 group-hover:animate-bounce-subtle"></i>
+                            Inicia sesión aquí
+                        </a>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- Formulario -->
+            <form method="POST" action="" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-dark mb-2">
+                            <i class="ph ph-user text-primary"></i> Nombres
+                        </label>
+                        <input type="text" name="nombres" placeholder="Nombres" required
+                            class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300 text-gray-dark placeholder-gray-dark/50">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-dark mb-2">
+                            <i class="ph ph-user text-primary"></i> Apellidos
+                        </label>
+                        <input type="text" name="apellidos" placeholder="Apellidos" required
+                            class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300 text-gray-dark placeholder-gray-dark/50">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-dark mb-2">
+                        <i class="ph ph-identification-card text-primary"></i> DNI
+                    </label>
+                    <input type="text" name="dni" placeholder="DNI (8 dígitos)" required
+                        class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300 text-gray-dark placeholder-gray-dark/50">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-dark mb-2">
+                        <i class="ph ph-envelope text-primary"></i> Correo electrónico
+                    </label>
+                    <input type="email" name="email" placeholder="tu@email.com" required
+                        class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300 text-gray-dark placeholder-gray-dark/50">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-dark mb-2">
+                        <i class="ph ph-phone text-primary"></i> Teléfono
+                    </label>
+                    <input type="text" name="telefono" placeholder="Teléfono (opcional)"
+                        class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300 text-gray-dark placeholder-gray-dark/50">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-dark mb-2">
+                        <i class="ph ph-user-circle text-primary"></i> Nombre de usuario
+                    </label>
+                    <input type="text" name="usuario" placeholder="Nombre de usuario" required
+                        class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300 text-gray-dark placeholder-gray-dark/50">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-dark mb-2">
+                        <i class="ph ph-briefcase text-primary"></i> Tipo de empleado
+                    </label>
+                    <input type="text" name="tipo" placeholder="Tipo (ej. Recepcionista, Mucama)" required
+                        class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300 text-gray-dark placeholder-gray-dark/50">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-dark mb-2">
+                        <i class="ph ph-lock text-primary"></i> Contraseña
+                    </label>
+                    <input type="password" name="contrasena" placeholder="Contraseña" required
+                        class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300 text-gray-dark placeholder-gray-dark/50">
+                </div>
+
+                <button type="submit" 
+                    class="w-full flex items-center justify-center space-x-2 bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl group">
+                    <i class="ph ph-user-plus text-xl group-hover:animate-bounce-subtle"></i>
+                    <span>Crear cuenta</span>
+                </button>
+            </form>
+
+            <!-- Enlaces -->
+            <div class="mt-6 text-center">
+                <a href="login_empleado.php" 
+                    class="block text-primary hover:text-primary-dark font-medium transition-colors duration-300 group">
+                    <i class="ph ph-sign-in inline mr-2 group-hover:animate-bounce-subtle"></i>
+                    ¿Ya tienes cuenta? Inicia sesión
+                </a>
+            </div>
+        </div>
     </div>
+</div>
+
 </body>
 </html>

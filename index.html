@@ -3,291 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel Dulce Sueños - Tu Refugio de Descanso</title>
-    <link rel="stylesheet" href="indexStyle.css">
+    <title>Hotel Dulces Sueños - Tu Refugio de Descanso</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#1E88E5',
+                            light: '#42A5F5',
+                            dark: '#1565C0',
+                        },
+                        gray: {
+                            light: '#F1F3F4',
+                            DEFAULT: '#9E9E9E',
+                            dark: '#424242',
+                            darker: '#212121',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'bounce-subtle': 'bounceSubtle 2s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        bounceSubtle: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .ph-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .ph-icon:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+    </style>
 </head>
-<body>
+<body class="bg-gray-light">
     <!-- Navbar -->
-    <nav id="navbar">
-        <div class="nav-container">
-            <div class="logo">
-                <i class="fas fa-moon"></i>
-                <span>Dulce Sueños</span>
-            </div>
-            <div class="nav-buttons">
-               <button class="btn btn-register" onclick="window.location.href='cliente/login_cliente.php'">
-                    <i class="fas fa-user-plus"></i>
-                    Iniciar Sesión
-                </button>
-                <button class="btn btn-register" onclick="window.location.href='cliente/registrarse_cliente.php'">
-                    <i class="fas fa-user-plus"></i>
-                    Registrarse
-                </button>
-                <button class="btn btn-register" onclick="window.location.href='empleado/login_empleado.php'">
-                    <i class="fas fa-user-plus"></i>
-                    ¿Eres empleado?
-                </button>
-                <button class="btn btn-register" onclick="window.location.href='administrador/login_admin.php'">
-                    <i class="fas fa-user-plus"></i>
-                    ¿Eres administrador?
-                </button>
+    <nav id="navbar" class="fixed top-0 w-full bg-white/95 backdrop-blur-md shadow-lg z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <i class="ph ph-moon-stars text-primary text-2xl animate-bounce-subtle"></i>
+                    <span class="text-primary font-bold text-xl">Dulces Sueños</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="cliente/login_cliente.php" class="flex items-center space-x-2 text-gray-dark hover:text-primary transition-colors duration-300 group">
+                        <i class="ph ph-sign-in text-lg group-hover:animate-bounce-subtle"></i>
+                        <span class="font-medium">Iniciar Sesión</span>
+                    </a>
+                    <a href="cliente/registrarse_cliente.php" class="flex items-center space-x-2 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg group">
+                        <i class="ph ph-user-plus text-lg group-hover:animate-bounce-subtle"></i>
+                        <span class="font-medium">Registrarse</span>
+                    </a>
+                    <a href="empleado/login_empleado.php" class="flex items-center space-x-2 text-gray-dark hover:text-primary transition-colors duration-300 group">
+                        <i class="ph ph-briefcase text-lg group-hover:animate-bounce-subtle"></i>
+                        <span class="font-medium">Empleado</span>
+                    </a>
+                    <a href="administrador/login_admin.php" class="flex items-center space-x-2 text-gray-dark hover:text-primary transition-colors duration-300 group">
+                        <i class="ph ph-shield-check text-lg group-hover:animate-bounce-subtle"></i>
+                        <span class="font-medium">Admin</span>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-bg"></div>
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <h1>Hotel Dulce Sueños</h1>
-            <p>Donde cada noche es un sueño hecho realidad</p>
-            <div class="hero-buttons">
-                <button class="btn btn-register btn-large" onclick="window.location.href='cliente/registrarse_cliente.php'">
-                    <i class="fas fa-calendar-check"></i>
-                    Reservar Ahora
-                </button>
-                <button class="btn btn-login btn-large">
-                    <i class="fas fa-play-circle"></i>
-                    Ver Tour Virtual
+    <section class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/20 via-white to-primary/10 pt-16">
+        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&q=80')] bg-cover bg-center opacity-10"></div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-fade-in">
+            <div class="mb-8">
+                <i class="ph ph-moon-stars text-primary text-8xl mb-4 animate-bounce-subtle"></i>
+            </div>
+            <h1 class="text-6xl md:text-7xl font-bold text-gray-dark mb-6 animate-slide-up">
+                Hotel Dulces Sueños
+            </h1>
+            <p class="text-2xl md:text-3xl text-gray-dark/70 mb-12 animate-slide-up" style="animation-delay: 0.2s">
+                Donde cada noche es un sueño hecho realidad
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up" style="animation-delay: 0.4s">
+                <a href="cliente/registrarse_cliente.php" class="flex items-center justify-center space-x-2 bg-primary hover:bg-primary-dark text-white font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl group">
+                    <i class="ph ph-calendar-check text-2xl group-hover:animate-bounce-subtle"></i>
+                    <span class="text-lg">Reservar Ahora</span>
+                </a>
+                <button class="flex items-center justify-center space-x-2 bg-white hover:bg-gray-light text-gray-dark font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl group border-2 border-primary">
+                    <i class="ph ph-play-circle text-2xl group-hover:animate-bounce-subtle"></i>
+                    <span class="text-lg">Ver Tour Virtual</span>
                 </button>
             </div>
         </div>
     </section>
 
     <!-- Features Section -->
-    <section class="features">
-        <div class="features-container">
-            <h2 class="section-title">Servicios de Lujo</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-wifi"></i>
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-gray-dark text-center mb-12 flex items-center justify-center space-x-3">
+                <i class="ph ph-sparkle text-primary"></i>
+                <span>Servicios de Primera</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-gray-light rounded-xl p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group">
+                    <div class="bg-primary/10 p-4 rounded-lg w-fit mb-4 group-hover:animate-bounce-subtle">
+                        <i class="ph ph-wifi-high text-primary text-4xl"></i>
                     </div>
-                    <h3>WiFi de Alta Velocidad</h3>
-                    <p>Conexión de fibra óptica gratuita en todas las áreas del hotel para mantenerte siempre conectado.</p>
+                    <h3 class="text-xl font-bold text-gray-dark mb-2">WiFi de Alta Velocidad</h3>
+                    <p class="text-gray-dark/70">Conexión de fibra óptica gratuita en todas las áreas del hotel para mantenerte siempre conectado.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-spa"></i>
+                <div class="bg-gray-light rounded-xl p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group">
+                    <div class="bg-primary/10 p-4 rounded-lg w-fit mb-4 group-hover:animate-bounce-subtle">
+                        <i class="ph ph-spa text-primary text-4xl"></i>
                     </div>
-                    <h3>Spa & Wellness</h3>
-                    <p>Disfruta de nuestro spa de clase mundial con tratamientos exclusivos y piscina climatizada.</p>
+                    <h3 class="text-xl font-bold text-gray-dark mb-2">Spa & Wellness</h3>
+                    <p class="text-gray-dark/70">Disfruta de nuestro spa de clase mundial con tratamientos exclusivos y piscina climatizada.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-utensils"></i>
+                <div class="bg-gray-light rounded-xl p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group">
+                    <div class="bg-primary/10 p-4 rounded-lg w-fit mb-4 group-hover:animate-bounce-subtle">
+                        <i class="ph ph-fork-knife text-primary text-4xl"></i>
                     </div>
-                    <h3>Restaurante Gourmet</h3>
-                    <p>Deléitate con platillos de chefs internacionales disponibles 24/7 en nuestros restaurantes.</p>
+                    <h3 class="text-xl font-bold text-gray-dark mb-2">Restaurante Gourmet</h3>
+                    <p class="text-gray-dark/70">Deléitate con platillos de chefs internacionales disponibles 24/7 en nuestros restaurantes.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-concierge-bell"></i>
+                <div class="bg-gray-light rounded-xl p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group">
+                    <div class="bg-primary/10 p-4 rounded-lg w-fit mb-4 group-hover:animate-bounce-subtle">
+                        <i class="ph ph-bell text-primary text-4xl"></i>
                     </div>
-                    <h3>Servicio de Conserjería</h3>
-                    <p>Nuestro equipo está disponible 24 horas para hacer tu estadía inolvidable.</p>
+                    <h3 class="text-xl font-bold text-gray-dark mb-2">Servicio de Conserjería</h3>
+                    <p class="text-gray-dark/70">Nuestro equipo está disponible 24 horas para hacer tu estadía inolvidable.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-dumbbell"></i>
+                <div class="bg-gray-light rounded-xl p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group">
+                    <div class="bg-primary/10 p-4 rounded-lg w-fit mb-4 group-hover:animate-bounce-subtle">
+                        <i class="ph ph-barbell text-primary text-4xl"></i>
                     </div>
-                    <h3>Gimnasio Equipado</h3>
-                    <p>Mantén tu rutina de ejercicios en nuestro gimnasio con equipos de última generación.</p>
+                    <h3 class="text-xl font-bold text-gray-dark mb-2">Gimnasio Equipado</h3>
+                    <p class="text-gray-dark/70">Mantén tu rutina de ejercicios en nuestro gimnasio con equipos de última generación.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-parking"></i>
+                <div class="bg-gray-light rounded-xl p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 group">
+                    <div class="bg-primary/10 p-4 rounded-lg w-fit mb-4 group-hover:animate-bounce-subtle">
+                        <i class="ph ph-parking text-primary text-4xl"></i>
                     </div>
-                    <h3>Estacionamiento</h3>
-                    <p>Estacionamiento privado con seguridad 24/7 y servicio de valet parking gratuito.</p>
+                    <h3 class="text-xl font-bold text-gray-dark mb-2">Estacionamiento</h3>
+                    <p class="text-gray-dark/70">Estacionamiento privado con seguridad 24/7 y servicio de valet parking gratuito.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Rooms Gallery -->
-    <section class="rooms">
-        <h2 class="section-title">Nuestras Habitaciones</h2>
-        <div class="rooms-grid">
-            <div class="room-card">
-                <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80" alt="Suite Deluxe" class="room-image">
-                <div class="room-overlay">
-                    <h3>Suite Deluxe</h3>
-                    <p>Lujo y comodidad en 45m² con vista panorámica</p>
+    <section class="py-20 bg-gray-light">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-gray-dark text-center mb-12 flex items-center justify-center space-x-3">
+                <i class="ph ph-house text-primary"></i>
+                <span>Nuestras Habitaciones</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="relative rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group">
+                    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80" alt="Suite Deluxe" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
+                        <div>
+                            <h3 class="text-2xl font-bold text-white mb-2">Suite Deluxe</h3>
+                            <p class="text-white/90">Lujo y comodidad en 45m² con vista panorámica</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="room-card">
-                <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80" alt="Suite Premium" class="room-image">
-                <div class="room-overlay">
-                    <h3>Suite Premium</h3>
-                    <p>Elegancia suprema con jacuzzi privado</p>
+                <div class="relative rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group">
+                    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80" alt="Suite Premium" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
+                        <div>
+                            <h3 class="text-2xl font-bold text-white mb-2">Suite Premium</h3>
+                            <p class="text-white/90">Elegancia suprema con jacuzzi privado</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="room-card">
-                <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80" alt="Suite Presidencial" class="room-image">
-                <div class="room-overlay">
-                    <h3>Suite Presidencial</h3>
-                    <p>La experiencia definitiva en 120m² de lujo</p>
+                <div class="relative rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group">
+                    <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80" alt="Suite Presidencial" class="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
+                        <div>
+                            <h3 class="text-2xl font-bold text-white mb-2">Suite Presidencial</h3>
+                            <p class="text-white/90">La experiencia definitiva en 120m² de lujo</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Testimonials -->
-    <section class="testimonials">
-        <h2 class="section-title">Lo Que Dicen Nuestros Huéspedes</h2>
-        <div class="testimonials-container">
-            <div class="testimonial-card">
-                <div class="testimonial-stars">★★★★★</div>
-                <p class="testimonial-text">"Una experiencia inolvidable. El servicio es excepcional y las habitaciones son un verdadero paraíso. Definitivamente volveremos."</p>
-                <p class="testimonial-author">- María González</p>
-            </div>
-            <div class="testimonial-card">
-                <div class="testimonial-stars">★★★★★</div>
-                <p class="testimonial-text">"El mejor hotel en el que me he hospedado. Cada detalle está cuidado al máximo. El spa es simplemente espectacular."</p>
-                <p class="testimonial-author">- Carlos Ramírez</p>
-            </div>
-            <div class="testimonial-card">
-                <div class="testimonial-stars">★★★★★</div>
-                <p class="testimonial-text">"Perfecto para una escapada romántica. La atención personalizada y el ambiente hacen que te sientas como en casa."</p>
-                <p class="testimonial-author">- Ana y Luis Martínez</p>
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-gray-dark text-center mb-12 flex items-center justify-center space-x-3">
+                <i class="ph ph-chat-circle-dots text-primary"></i>
+                <span>Lo Que Dicen Nuestros Huéspedes</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gray-light rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="flex items-center space-x-1 mb-4 text-yellow-500">
+                        <i class="ph ph-star-fill"></i>
+                        <i class="ph ph-star-fill"></i>
+                        <i class="ph ph-star-fill"></i>
+                        <i class="ph ph-star-fill"></i>
+                        <i class="ph ph-star-fill"></i>
+                    </div>
+                    <p class="text-gray-dark/70 mb-4 italic">"Una experiencia inolvidable. El servicio es excepcional y las habitaciones son un verdadero paraíso. Definitivamente volveremos."</p>
+                    <p class="text-gray-dark font-semibold">- María González</p>
+                </div>
+                <div class="bg-gray-light rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="flex items-center space-x-1 mb-4 text-yellow-500">
+                        <i class="ph ph-star-fill"></i>
+                        <i class="ph ph-star-fill"></i>
+                        <i class="ph ph-star-fill"></i>
+                        <i class="ph ph-star-fill"></i>
+                        <i class="ph ph-star-fill"></i>
+                    </div>
+                    <p class="text-gray-dark/70 mb-4 italic">"El mejor hotel en el que me he hospedado. Cada detalle está cuidado al máximo. El spa es simplemente espectacular."</p>
+                    <p class="text-gray-dark font-semibold">- Carlos Ramírez</p>
+                </div>
+                <div class="bg-gray-light rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="flex items-center space-x-1 mb-4 text-yellow-500">
+                        <i class="ph ph-star-fill"></i>
+                        <i class="ph ph-star-fill"></i>
+                        <i class="ph ph-star-fill"></i>
+                        <i class="ph ph-star-fill"></i>
+                        <i class="ph ph-star-fill"></i>
+                    </div>
+                    <p class="text-gray-dark/70 mb-4 italic">"Perfecto para una escapada romántica. La atención personalizada y el ambiente hacen que te sientas como en casa."</p>
+                    <p class="text-gray-dark font-semibold">- Ana y Luis Martínez</p>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <div class="logo" style="justify-content: center; font-size: 2em;">
-                <i class="fas fa-moon"></i>
-                <span>Dulce Sueños</span>
+    <footer class="bg-gray-dark text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <i class="ph ph-moon-stars text-primary text-4xl animate-bounce-subtle"></i>
+                    <span class="text-3xl font-bold">Dulces Sueños</span>
+                </div>
+                <div class="flex items-center justify-center space-x-4 mb-6">
+                    <a href="#" class="bg-white/10 hover:bg-primary p-3 rounded-full transition-all duration-300 transform hover:scale-110 group">
+                        <i class="ph ph-facebook-logo text-xl group-hover:animate-bounce-subtle"></i>
+                    </a>
+                    <a href="#" class="bg-white/10 hover:bg-primary p-3 rounded-full transition-all duration-300 transform hover:scale-110 group">
+                        <i class="ph ph-instagram-logo text-xl group-hover:animate-bounce-subtle"></i>
+                    </a>
+                    <a href="#" class="bg-white/10 hover:bg-primary p-3 rounded-full transition-all duration-300 transform hover:scale-110 group">
+                        <i class="ph ph-twitter-logo text-xl group-hover:animate-bounce-subtle"></i>
+                    </a>
+                    <a href="#" class="bg-white/10 hover:bg-primary p-3 rounded-full transition-all duration-300 transform hover:scale-110 group">
+                        <i class="ph ph-youtube-logo text-xl group-hover:animate-bounce-subtle"></i>
+                    </a>
+                </div>
+                <p class="text-white/70">&copy; 2025 Hotel Dulces  Sueños. Todos los derechos reservados.</p>
             </div>
-            <div class="social-icons">
-                <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
-            </div>
-            <p style="color: #888;">&copy; 2025 Hotel Dulce Sueños. Todos los derechos reservados.</p>
         </div>
     </footer>
-
-    <!-- Modal Login -->
-    <div class="modal" id="loginModal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeModals()">&times;</button>
-            <div class="modal-header">
-                <h2>Iniciar Sesión</h2>
-                <p style="color: #888;">Bienvenido de vuelta</p>
-            </div>
-            <form>
-                <div class="form-group">
-                    <label>Correo Electrónico</label>
-                    <input type="email" placeholder="tu@email.com" required>
-                </div>
-                <div class="form-group">
-                    <label>Contraseña</label>
-                    <input type="password" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn btn-register" style="width: 100%; justify-content: center;">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Entrar
-                </button>
-                <p style="text-align: center; margin-top: 20px; color: #888;">
-                    ¿No tienes cuenta? 
-                    <a href="#" onclick="switchToRegister()" style="color: #ffd700; text-decoration: none;">Regístrate aquí</a>
-                </p>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Register -->
-    <div class="modal" id="registerModal">
-        <div class="modal-content">
-            <button class="close-modal" onclick="closeModals()">&times;</button>
-            <div class="modal-header">
-                <h2>Crear Cuenta</h2>
-                <p style="color: #888;">Únete a nuestra familia</p>
-            </div>
-            <form>
-                <div class="form-group">
-                    <label>Nombre Completo</label>
-                    <input type="text" placeholder="Tu nombre" required>
-                </div>
-                <div class="form-group">
-                    <label>Correo Electrónico</label>
-                    <input type="email" placeholder="tu@email.com" required>
-                </div>
-                <div class="form-group">
-                    <label>Contraseña</label>
-                    <input type="password" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn btn-register" style="width: 100%; justify-content: center;">
-                    <i class="fas fa-user-plus"></i>
-                    Registrarse
-                </button>
-                <p style="text-align: center; margin-top: 20px; color: #888;">
-                    ¿Ya tienes cuenta? 
-                    <a href="#" onclick="switchToLogin()" style="color: #ffd700; text-decoration: none;">Inicia sesión aquí</a>
-                </p>
-            </form>
-        </div>
-    </div>
 
     <script>
         // Navbar scroll effect
         window.addEventListener('scroll', function() {
             const navbar = document.getElementById('navbar');
             if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
+                navbar.classList.add('shadow-2xl');
+                navbar.classList.remove('bg-white/95');
+                navbar.classList.add('bg-white');
             } else {
-                navbar.classList.remove('scrolled');
+                navbar.classList.remove('shadow-2xl');
+                navbar.classList.add('bg-white/95');
+                navbar.classList.remove('bg-white');
             }
-        });
-
-        // Modal functions
-        function openLoginModal() {
-            document.getElementById('loginModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function openRegisterModal() {
-            document.getElementById('registerModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModals() {
-            document.getElementById('loginModal').classList.remove('active');
-            document.getElementById('registerModal').classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-
-        function switchToRegister() {
-            closeModals();
-            setTimeout(() => openRegisterModal(), 300);
-        }
-
-        function switchToLogin() {
-            closeModals();
-            setTimeout(() => openLoginModal(), 300);
-        }
-
-        // Close modal on outside click
-        window.onclick = function(event) {
-            const loginModal = document.getElementById('loginModal');
-            const registerModal = document.getElementById('registerModal');
-            if (event.target === loginModal || event.target === registerModal) {
-                closeModals();
-            }
-        }
-
-        // Form submissions
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                alert('¡Funcionalidad próximamente!');
-            });
         });
     </script>
 </body>

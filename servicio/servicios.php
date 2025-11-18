@@ -1,56 +1,130 @@
 <?php
+// Verificar sesión (clientes pueden ver, empleados y administradores pueden gestionar)
+session_start();
+if(!isset($_SESSION['usuario_cliente']) && !isset($_SESSION['usuario_empleado']) && !isset($_SESSION['usuario_admin'])){
+    header("Location: ../index.html");
+    exit();
+}
+
 include("../conexion.php");
 $result = $conn->query("SELECT * FROM Servicios ORDER BY id ASC");
+
+$page_title = "Gestión de Servicios";
+include("../includes/head.php");
+include("../includes/navegacion_tailwind.php");
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Gestión de Servicios</title>
-  <link rel="stylesheet" href="../estilos.css">
-</head>
-<body>
-  <div class="container">
-    <h1>Gestión de Servicios</h1>
 
-    <form action="servicio_crud.php" method="POST" class="formulario">
-      <h2>Registrar nuevo servicio</h2>
-      <div class="input-group">
-        <input type="text" name="id" placeholder="ID del servicio" required>
-        <input type="text" name="descripcion" placeholder="Descripción" required>
-      </div>
-      <div class="input-group">
-        <input type="number" step="0.01" name="costo" placeholder="Costo (S/.)" required>
-      </div>
-      <button type="submit" name="crear" class="btn">Agregar Servicio</button>
-    </form>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+    <!-- Header -->
+    <div class="mb-8 flex justify-between items-center animate-slide-down">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-dark mb-2 flex items-center space-x-3">
+                <i class="ph ph-wrench text-primary animate-bounce-subtle"></i>
+                <span>Gestión de Servicios</span>
+            </h1>
+            <p class="text-gray-dark/70">Administra los servicios disponibles</p>
+        </div>
+    </div>
 
-    <h2>Lista de Servicios</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Descripción</th>
-          <th>Costo (S/.)</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php while ($row = $result->fetch_assoc()): ?>
-        <tr>
-          <form action="servicio_crud.php" method="POST">
-            <td><input type="text" name="id" value="<?= $row['id'] ?>" readonly></td>
-            <td><input type="text" name="descripcion" value="<?= $row['descripcion'] ?>"></td>
-            <td><input type="number" step="0.01" name="costo" value="<?= $row['costo'] ?>"></td>
-            <td>
-              <button type="submit" name="actualizar" class="btn actualizar">✏️</button>
-              <a href="servicio_crud.php?eliminar=<?= $row['id'] ?>" class="btn eliminar">🗑️</a>
-            </td>
-          </form>
-        </tr>
-        <?php endwhile; ?>
-      </tbody>
-    </table>
-  </div>
+    <?php if(isset($_SESSION['usuario_empleado']) || isset($_SESSION['usuario_admin'])): ?>
+    <!-- Formulario de Registro -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8 animate-scale-in">
+        <h2 class="text-2xl font-bold text-gray-dark mb-6 flex items-center space-x-2">
+            <i class="ph ph-plus-circle text-primary"></i>
+            <span>Registrar nuevo servicio</span>
+        </h2>
+        <form action="servicio_crud.php" method="POST" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-dark mb-2">
+                        <i class="ph ph-hash text-primary"></i> ID (opcional, se genera automáticamente)
+                    </label>
+                    <input type="text" name="id" placeholder="ID del servicio"
+                        class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300 text-gray-dark placeholder-gray-dark/50">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-dark mb-2">
+                        <i class="ph ph-text-aa text-primary"></i> Descripción
+                    </label>
+                    <input type="text" name="descripcion" placeholder="Descripción" required
+                        class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300 text-gray-dark placeholder-gray-dark/50">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-dark mb-2">
+                    <i class="ph ph-currency-dollar text-primary"></i> Costo (S/.)
+                </label>
+                <input type="number" step="0.01" min="0.01" name="costo" placeholder="Costo" required
+                    class="w-full px-4 py-3 border-2 border-gray-light rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-300 text-gray-dark placeholder-gray-dark/50">
+            </div>
+            <button type="submit" name="crear" 
+                class="w-full md:w-auto flex items-center justify-center space-x-2 bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl group">
+                <i class="ph ph-plus-circle text-xl group-hover:animate-bounce-subtle"></i>
+                <span>Agregar Servicio</span>
+            </button>
+        </form>
+    </div>
+    <?php endif; ?>
+
+    <!-- Lista de Servicios -->
+    <div class="bg-white rounded-xl shadow-lg p-6 animate-slide-up">
+        <h2 class="text-2xl font-bold text-gray-dark mb-6 flex items-center space-x-2">
+            <i class="ph ph-list-bullets text-primary"></i>
+            <span>Lista de Servicios</span>
+        </h2>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b-2 border-gray-light">
+                        <th class="text-left py-3 px-4 text-gray-dark font-semibold">ID</th>
+                        <th class="text-left py-3 px-4 text-gray-dark font-semibold">Descripción</th>
+                        <th class="text-left py-3 px-4 text-gray-dark font-semibold">Costo (S/.)</th>
+                        <?php if(isset($_SESSION['usuario_empleado']) || isset($_SESSION['usuario_admin'])): ?>
+                        <th class="text-left py-3 px-4 text-gray-dark font-semibold">Acciones</th>
+                        <?php endif; ?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                    <tr class="border-b border-gray-light hover:bg-gray-light/50 transition-colors duration-200">
+                        <form action="servicio_crud.php" method="POST" class="contents">
+                            <td class="py-3 px-4">
+                                <input type="text" name="id" value="<?= htmlspecialchars($row['id']) ?>" readonly
+                                    class="w-full px-2 py-1 border border-gray-light rounded text-gray-dark bg-gray-light/50 font-mono text-sm">
+                            </td>
+                            <td class="py-3 px-4">
+                                <input type="text" name="descripcion" value="<?= htmlspecialchars($row['descripcion']) ?>"
+                                    class="w-full px-2 py-1 border border-gray-light rounded focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none text-gray-dark">
+                            </td>
+                            <td class="py-3 px-4">
+                                <input type="number" step="0.01" name="costo" value="<?= htmlspecialchars($row['costo']) ?>"
+                                    class="w-full px-2 py-1 border border-gray-light rounded focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none text-gray-dark">
+                            </td>
+                            <?php if(isset($_SESSION['usuario_empleado']) || isset($_SESSION['usuario_admin'])): ?>
+                            <td class="py-3 px-4">
+                                <div class="flex items-center space-x-2">
+                                    <button type="submit" name="actualizar" 
+                                        class="bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg transition-all duration-300 transform hover:scale-110 group"
+                                        title="Actualizar">
+                                        <i class="ph ph-pencil text-lg group-hover:animate-bounce-subtle"></i>
+                                    </button>
+                                    <a href="servicio_crud.php?eliminar=<?= htmlspecialchars($row['id']) ?>" 
+                                        onclick="return confirm('¿Estás seguro de eliminar este servicio?')"
+                                        class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-all duration-300 transform hover:scale-110 group"
+                                        title="Eliminar">
+                                        <i class="ph ph-trash text-lg group-hover:animate-bounce-subtle"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            <?php endif; ?>
+                        </form>
+                    </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
