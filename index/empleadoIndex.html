@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Empleado</title>
+    <link rel="stylesheet" href="../estilos.css">
+      <style>
+        .regresar {
+            background-color: #ff4d4d;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: 0.3s ease;
+        }
+        .regresar:hover {
+            background-color: #cc0000;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Panel Empleado</h1>
+        <div class="formulario">
+            <div class="input-group">
+                <a href="../cliente/clientes.php" class="btn">Clientes</a>
+                <a href="../detalleReserva/detallesReservas.php" class="btn">Reservas</a>
+                <a href="../detalleServicio/detallesServicios.php" class="btn">Servicios Detallados</a>
+                <a href="../tipoPago/tipoPagos.php" class="btn">Tipos de Pago</a>
+                <a href="../habitacion/habitaciones.php" class="btn">Habitaciones</a>
+                <a href="../index.html" class="btn regresar">Regresar al Inicio</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
