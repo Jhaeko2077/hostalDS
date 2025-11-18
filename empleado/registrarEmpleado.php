@@ -1,52 +1,54 @@
 <?php 
-include("../conexion.php"); // conexión a la BD
+require_once("../includes/functions.php");
+include("../conexion.php");
 
 $mensaje = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nombres = trim($_POST["nombres"]);
-    $apellidos = trim($_POST["apellidos"]);
-    $dni = trim($_POST["dni"]);
-    $email = trim($_POST["email"]);
-    $telefono = trim($_POST["telefono"]);
-    $usuario = trim($_POST["usuario"]);
-    $tipo = trim($_POST["tipo"]); // tipo de empleado (ej: "Recepcionista", "Secretaria")
+    $nombres = sanitize_input($_POST["nombres"]);
+    $apellidos = sanitize_input($_POST["apellidos"]);
+    $dni = sanitize_input($_POST["dni"]);
+    $email = sanitize_input($_POST["email"]);
+    $telefono = sanitize_input($_POST["telefono"] ?? '');
+    $usuario = sanitize_input($_POST["usuario"]);
+    $tipo = sanitize_input($_POST["tipo"]);
     $contrasena = $_POST["contrasena"];
 
     // Validar campos vacíos
     if(empty($nombres) || empty($apellidos) || empty($dni) || empty($email) || empty($usuario) || empty($contrasena) || empty($tipo)){
         $mensaje = "Por favor completa todos los campos obligatorios.";
     } else {
-        // Verificar si el usuario, email o DNI ya existe
-        $stmt_check = $conn->prepare("SELECT id FROM Empleado WHERE usuario = ? OR email = ? OR dni = ?");
-        $stmt_check->bind_param("sss", $usuario, $email, $dni);
-        $stmt_check->execute();
-        $result_check = $stmt_check->get_result();
-        
-        if($result_check->num_rows > 0){
-            $mensaje = "El usuario, email o DNI ya está registrado. Por favor usa otros datos.";
-            $stmt_check->close();
+        // Validaciones adicionales
+        if (!validate_email($email)) {
+            $mensaje = "El email no es válido.";
+        } elseif (!validate_dni($dni)) {
+            $mensaje = "El DNI debe tener 8 dígitos.";
         } else {
-            $stmt_check->close();
-            
-            // Hash de la contraseña
-            $contrasena_hash = password_hash($contrasena, PASSWORD_BCRYPT);
-
-            // El ID se generará automáticamente por el trigger
-            $sql = "INSERT INTO Empleado (nombres, apellidos, dni, email, telefono, contrasena, usuario, tipo)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-
-            if ($stmt) {
-                $stmt->bind_param("ssssssss", $nombres, $apellidos, $dni, $email, $telefono, $contrasena_hash, $usuario, $tipo);
-                if ($stmt->execute()) {
-                    $mensaje = "Empleado registrado exitosamente. ¡Bienvenido, " . htmlspecialchars($nombres) . "! <a href='login_empleado.php'>Inicia sesión aquí</a>";
-                } else {
-                    $mensaje = "Error al registrar empleado: " . $stmt->error;
-                }
-                $stmt->close();
+            // Verificar si el usuario, email o DNI ya existe
+            if (user_exists($conn, 'Empleado', 'usuario', $usuario) || 
+                user_exists($conn, 'Empleado', 'email', $email) || 
+                user_exists($conn, 'Empleado', 'dni', $dni)) {
+                $mensaje = "El usuario, email o DNI ya está registrado. Por favor usa otros datos.";
             } else {
-                $mensaje = "Error en la conexión con la base de datos.";
+                // Hash de la contraseña
+                $contrasena_hash = password_hash($contrasena, PASSWORD_BCRYPT);
+
+                // El ID se generará automáticamente por el trigger
+                $sql = "INSERT INTO Empleado (nombres, apellidos, dni, email, telefono, contrasena, usuario, tipo)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $stmt = $conn->prepare($sql);
+
+                if ($stmt) {
+                    $stmt->bind_param("ssssssss", $nombres, $apellidos, $dni, $email, $telefono, $contrasena_hash, $usuario, $tipo);
+                    if ($stmt->execute()) {
+                        $mensaje = "Empleado registrado exitosamente. ¡Bienvenido, " . htmlspecialchars($nombres) . "! <a href='login_empleado.php'>Inicia sesión aquí</a>";
+                    } else {
+                        $mensaje = "Error al registrar empleado: " . htmlspecialchars($stmt->error);
+                    }
+                    $stmt->close();
+                } else {
+                    $mensaje = "Error en la conexión con la base de datos.";
+                }
             }
         }
     }

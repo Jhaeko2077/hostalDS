@@ -1,6 +1,9 @@
 <?php
 // Archivo de navegación reutilizable
 // Determinar el tipo de usuario y mostrar navegación apropiada
+if (!isset($_SESSION)) {
+    session_start();
+}
 $es_cliente = isset($_SESSION['usuario_cliente']);
 $es_empleado = isset($_SESSION['usuario_empleado']);
 $es_admin = isset($_SESSION['usuario_admin']);

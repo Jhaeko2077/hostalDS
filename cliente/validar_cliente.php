@@ -1,15 +1,15 @@
 <?php
+require_once("../includes/functions.php");
 session_start();
 include("../conexion.php");
 
 // Recibir y limpiar datos
-$usuario = trim($_POST['usuario'] ?? '');
-$contrasena = trim($_POST['contrasena'] ?? '');
+$usuario = sanitize_input($_POST['usuario'] ?? '');
+$contrasena = $_POST['contrasena'] ?? '';
 
 // Validar que los campos no estén vacíos
 if(empty($usuario) || empty($contrasena)){
-    echo "<script>alert('Por favor completa todos los campos'); window.history.back();</script>";
-    exit();
+    show_error_and_redirect("Por favor completa todos los campos", "login_cliente.php");
 }
 
 // Preparar consulta segura
@@ -35,12 +35,10 @@ if($resultado->num_rows > 0){
         header("Location: ../index/clienteIndex.php");
         exit();
     } else {
-        echo "<script>alert('Contraseña incorrecta'); window.history.back();</script>";
-        exit();
+        show_error_and_redirect("Contraseña incorrecta", "login_cliente.php");
     }
 } else {
-    echo "<script>alert('Usuario no encontrado'); window.history.back();</script>";
-    exit();
+    show_error_and_redirect("Usuario no encontrado", "login_cliente.php");
 }
 
 // Cerrar statement y conexión

@@ -8,7 +8,7 @@ if(isset($_SESSION['usuario_cliente'])){
 }
 
 if(isset($_COOKIE['usuario_cliente'])){
-    $usuarioGuardado = $_COOKIE['usuario_cliente'];
+    $usuarioGuardado = htmlspecialchars($_COOKIE['usuario_cliente'], ENT_QUOTES, 'UTF-8');
 } else {
     $usuarioGuardado = "";
 }
@@ -31,6 +31,8 @@ if(isset($_COOKIE['usuario_cliente'])){
             </label>
             <button type="submit">Ingresar</button>
         </form>
+        <a href="registrarse_cliente.php" style="display: block; text-align: center; color: #f5c542; text-decoration: none; margin-top: 15px; font-size: 0.9em;">¿No tienes cuenta? Regístrate aquí</a>
+        <a href="../index.html" style="display: block; text-align: center; color: #f5c542; text-decoration: none; margin-top: 10px; font-size: 0.9em;">Volver al inicio</a>
     </div>
 </body>
 </html>

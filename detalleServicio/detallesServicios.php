@@ -40,7 +40,7 @@ $servicios = $conn->query("SELECT id, descripcion FROM Servicios");
     <form action="detalleServicio_crud.php" method="POST" class="formulario">
       <h2>Registrar nuevo detalle</h2>
       <div class="input-group">
-        <input type="text" name="id" placeholder="ID Detalle" required>
+        <input type="text" name="id" placeholder="ID Detalle (opcional, se genera automáticamente)">
 
         <select name="idHab" required>
           <option value="">Seleccionar Habitación</option>
@@ -85,7 +85,7 @@ $servicios = $conn->query("SELECT id, descripcion FROM Servicios");
         <?php while ($row = $result->fetch_assoc()): ?>
         <tr>
           <form action="detalleServicio_crud.php" method="POST">
-            <td><input type="text" name="id" value="<?= $row['id'] ?>" readonly></td>
+            <td><input type="text" name="id" value="<?= htmlspecialchars($row['id']) ?>" readonly></td>
 
             <td>
               <select name="idHab">
@@ -93,7 +93,9 @@ $servicios = $conn->query("SELECT id, descripcion FROM Servicios");
                 $habs = $conn->query("SELECT codigo, tipo FROM Habitaciones");
                 while ($h = $habs->fetch_assoc()) {
                     $sel = ($h['codigo'] == $row['idHab']) ? "selected" : "";
-                    echo "<option value='{$h['codigo']}' $sel>{$h['tipo']}</option>";
+                    $codigo = htmlspecialchars($h['codigo']);
+                    $tipo = htmlspecialchars($h['tipo']);
+                    echo "<option value='$codigo' $sel>$tipo</option>";
                 }
                 ?>
               </select>
@@ -105,7 +107,9 @@ $servicios = $conn->query("SELECT id, descripcion FROM Servicios");
                 $emps = $conn->query("SELECT id, nombres FROM Empleado");
                 while ($e = $emps->fetch_assoc()) {
                     $sel = ($e['id'] == $row['idEmp']) ? "selected" : "";
-                    echo "<option value='{$e['id']}' $sel>{$e['nombres']}</option>";
+                    $id_emp = htmlspecialchars($e['id']);
+                    $nombres_emp = htmlspecialchars($e['nombres']);
+                    echo "<option value='$id_emp' $sel>$nombres_emp</option>";
                 }
                 ?>
               </select>
@@ -117,7 +121,9 @@ $servicios = $conn->query("SELECT id, descripcion FROM Servicios");
                 $sers = $conn->query("SELECT id, descripcion FROM Servicios");
                 while ($s = $sers->fetch_assoc()) {
                     $sel = ($s['id'] == $row['idServicio']) ? "selected" : "";
-                    echo "<option value='{$s['id']}' $sel>{$s['descripcion']}</option>";
+                    $id_serv = htmlspecialchars($s['id']);
+                    $desc_serv = htmlspecialchars($s['descripcion']);
+                    echo "<option value='$id_serv' $sel>$desc_serv</option>";
                 }
                 ?>
               </select>
@@ -126,7 +132,7 @@ $servicios = $conn->query("SELECT id, descripcion FROM Servicios");
             <td><input type="checkbox" name="pago" <?= $row['pago'] ? "checked" : "" ?>></td>
             <td>
               <button type="submit" name="actualizar" class="btn actualizar">✏️</button>
-              <a href="detalleServicio_crud.php?eliminar=<?= $row['id'] ?>" class="btn eliminar">🗑️</a>
+              <a href="detalleServicio_crud.php?eliminar=<?= htmlspecialchars($row['id']) ?>" class="btn eliminar" onclick="return confirm('¿Estás seguro de eliminar este detalle de servicio?')">🗑️</a>
             </td>
           </form>
         </tr>

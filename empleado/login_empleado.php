@@ -1,14 +1,13 @@
 <?php
 session_start();
 
-// Si ya está logueado, redirigir al panel
 if(isset($_SESSION['usuario_empleado'])){
     header("Location: ../index/empleadoIndex.php");
     exit();
 }
 
 if(isset($_COOKIE['usuario_empleado'])){
-    $usuarioGuardado = $_COOKIE['usuario_empleado'];
+    $usuarioGuardado = htmlspecialchars($_COOKIE['usuario_empleado'], ENT_QUOTES, 'UTF-8');
 } else {
     $usuarioGuardado = "";
 }
@@ -30,25 +29,27 @@ if(isset($_COOKIE['usuario_empleado'])){
                 <input type="checkbox" name="recordar"> Recordarme
             </label>
             <button type="submit">Entrar</button>
-                        <input type="password" id="claveAdmin" placeholder="Ingresa la contraseña">
-
-            <button id="btnAdmin" class="btn btn-register">
-                <i class="fas fa-user-plus"></i>
+        </form>
+        
+        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <input type="password" id="claveAdmin" placeholder="Ingresa la contraseña para registrar" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white;">
+            <button id="btnAdmin" type="button" style="width: 100%; padding: 10px; background: #22c55e; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
                 Ir a Registrar Empleado
             </button>
-
             <script>
-            document.getElementById("btnAdmin").addEventListener("click", function() {
+            document.getElementById("btnAdmin").addEventListener("click", function(e) {
+                e.preventDefault();
                 const clave = document.getElementById("claveAdmin").value;
                 if (clave === "dulc3d3sc4ns0") {
-                    // Redirige a la página
                     window.location.href = "registrarEmpleado.php";
                 } else {
                     alert("Contraseña incorrecta. No puedes continuar.");
                 }
             });
             </script>
-        </form>
+        </div>
+        
+        <a href="../index.html" style="display: block; text-align: center; color: #f5c542; text-decoration: none; margin-top: 15px; font-size: 0.9em;">Volver al inicio</a>
     </div>
 </body>
 </html>

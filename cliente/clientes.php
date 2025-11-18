@@ -196,17 +196,17 @@ table th, table td {
         <?php while ($row = $result->fetch_assoc()): ?>
         <tr>
           <form action="cliente_crud.php" method="POST">
-            <td><input type="text" name="id" value="<?= $row['id'] ?>" readonly></td>
-            <td><input type="text" name="nombres" value="<?= $row['nombres'] ?>"></td>
-            <td><input type="text" name="apellidos" value="<?= $row['apellidos'] ?>"></td>
-            <td><input type="text" name="dni" value="<?= $row['dni'] ?>"></td>
-            <td><input type="email" name="email" value="<?= $row['email'] ?>"></td>
-            <td><input type="text" name="telefono" value="<?= $row['telefono'] ?>"></td>
+            <td><input type="text" name="id" value="<?= htmlspecialchars($row['id']) ?>" readonly></td>
+            <td><input type="text" name="nombres" value="<?= htmlspecialchars($row['nombres']) ?>"></td>
+            <td><input type="text" name="apellidos" value="<?= htmlspecialchars($row['apellidos']) ?>"></td>
+            <td><input type="text" name="dni" value="<?= htmlspecialchars($row['dni']) ?>"></td>
+            <td><input type="email" name="email" value="<?= htmlspecialchars($row['email']) ?>"></td>
+            <td><input type="text" name="telefono" value="<?= htmlspecialchars($row['telefono'] ?? '') ?>"></td>
             <td><input type="password" name="contrasena" placeholder="Dejar vacío para no cambiar"></td>
-            <td><input type="text" name="usuario" value="<?= $row['usuario'] ?>"></td>
+            <td><input type="text" name="usuario" value="<?= htmlspecialchars($row['usuario'] ?? '') ?>"></td>
             <td>
               <button type="submit" name="actualizar" class="btn actualizar">✏️</button>
-              <a href="cliente_crud.php?eliminar=<?= $row['id'] ?>" class="btn eliminar">🗑️</a>
+              <a href="cliente_crud.php?eliminar=<?= htmlspecialchars($row['id']) ?>" class="btn eliminar" onclick="return confirm('¿Estás seguro de eliminar este cliente?')">🗑️</a>
             </td>
           </form>
         </tr>

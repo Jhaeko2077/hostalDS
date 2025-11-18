@@ -1,54 +1,58 @@
 <?php
-// Verificar sesión de empleado o administrador
-session_start();
-if(!isset($_SESSION['usuario_empleado']) && !isset($_SESSION['usuario_admin'])){
-    header("Location: ../index.html");
-    exit();
-}
+require_once("../includes/functions.php");
+check_permission(['empleado', 'admin']);
 
 include("../conexion.php");
 
 // Crear
 if (isset($_POST['crear'])) {
-    $codigo = trim($_POST['codigo']);
-    $tipo = trim($_POST['tipo']);
-    $estado = trim($_POST['estado']);
-    $descripcion = trim($_POST['descripcion']);
+    $codigo = sanitize_input($_POST['codigo']);
+    $tipo = sanitize_input($_POST['tipo']);
+    $estado = sanitize_input($_POST['estado']);
+    $descripcion = sanitize_input($_POST['descripcion'] ?? '');
+    
+    if (empty($codigo) || empty($tipo) || empty($estado)) {
+        show_error_and_redirect("Código, tipo y estado son obligatorios", "habitaciones.php");
+    }
 
-    $stmt = $conn->prepare("INSERT INTO Habitaciones (codigo, tipo, estado, descripcion)
-            VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("ssss", $codigo, $tipo, $estado, $descripcion);
-    $stmt->execute();
-    $stmt->close();
-    header("Location: habitaciones.php");
-    exit();
+    $sql = "INSERT INTO Habitaciones (codigo, tipo, estado, descripcion) VALUES (?, ?, ?, ?)";
+    $types = "ssss";
+    $params = [$codigo, $tipo, $estado, $descripcion];
+    
+    execute_crud($conn, $sql, $types, $params, "habitaciones.php", "Error al crear la habitación");
 }
 
 // Actualizar
 if (isset($_POST['actualizar'])) {
-    $codigo = trim($_POST['codigo']);
-    $tipo = trim($_POST['tipo']);
-    $estado = trim($_POST['estado']);
-    $descripcion = trim($_POST['descripcion']);
+    $codigo = sanitize_input($_POST['codigo']);
+    $tipo = sanitize_input($_POST['tipo']);
+    $estado = sanitize_input($_POST['estado']);
+    $descripcion = sanitize_input($_POST['descripcion'] ?? '');
+    
+    if (empty($codigo) || empty($tipo) || empty($estado)) {
+        show_error_and_redirect("Código, tipo y estado son obligatorios", "habitaciones.php");
+    }
 
-    $stmt = $conn->prepare("UPDATE Habitaciones 
-            SET tipo=?, estado=?, descripcion=?
-            WHERE codigo=?");
-    $stmt->bind_param("ssss", $tipo, $estado, $descripcion, $codigo);
-    $stmt->execute();
-    $stmt->close();
-    header("Location: habitaciones.php");
-    exit();
+    $sql = "UPDATE Habitaciones SET tipo=?, estado=?, descripcion=? WHERE codigo=?";
+    $types = "ssss";
+    $params = [$tipo, $estado, $descripcion, $codigo];
+    
+    execute_crud($conn, $sql, $types, $params, "habitaciones.php", "Error al actualizar la habitación");
 }
 
 // Eliminar
 if (isset($_GET['eliminar'])) {
-    $codigo = trim($_GET['eliminar']);
-    $stmt = $conn->prepare("DELETE FROM Habitaciones WHERE codigo=?");
-    $stmt->bind_param("s", $codigo);
-    $stmt->execute();
-    $stmt->close();
-    header("Location: habitaciones.php");
-    exit();
+    $codigo = sanitize_input($_GET['eliminar']);
+    
+    // Verificar si tiene relaciones
+    if (has_relations($conn, 'Habitaciones', 'codigo', $codigo)) {
+        show_error_and_redirect("No se puede eliminar la habitación porque tiene reservas o servicios asociados", "habitaciones.php");
+    }
+    
+    $sql = "DELETE FROM Habitaciones WHERE codigo=?";
+    $types = "s";
+    $params = [$codigo];
+    
+    execute_crud($conn, $sql, $types, $params, "habitaciones.php", "Error al eliminar la habitación");
 }
 ?>

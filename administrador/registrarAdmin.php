@@ -1,63 +1,57 @@
 <?php 
-include("../conexion.php"); // conexión a la BD
+require_once("../includes/functions.php");
+include("../conexion.php");
 
 $mensaje = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nombres = trim($_POST["nombres"]);
-    $apellidos = trim($_POST["apellidos"]);
-    $dni = trim($_POST["dni"]);
-    $email = trim($_POST["email"]);
-    $telefono = trim($_POST["telefono"]);
-    $usuario = trim($_POST["usuario"]); // Debe existir en Empleado
+    $nombres = sanitize_input($_POST["nombres"]);
+    $apellidos = sanitize_input($_POST["apellidos"]);
+    $dni = sanitize_input($_POST["dni"]);
+    $email = sanitize_input($_POST["email"]);
+    $telefono = sanitize_input($_POST["telefono"] ?? '');
+    $usuario = sanitize_input($_POST["usuario"]);
     $contrasena = $_POST["contrasena"];
 
     // Validar campos vacíos
     if(empty($nombres) || empty($apellidos) || empty($dni) || empty($email) || empty($usuario) || empty($contrasena)){
         $mensaje = "Por favor completa todos los campos obligatorios.";
     } else {
-        // Verificar que el usuario exista en Empleado
-        $stmt_check_emp = $conn->prepare("SELECT id FROM Empleado WHERE usuario = ?");
-        $stmt_check_emp->bind_param("s", $usuario);
-        $stmt_check_emp->execute();
-        $result_check_emp = $stmt_check_emp->get_result();
-        
-        if($result_check_emp->num_rows == 0){
-            $mensaje = "El usuario no existe en la tabla Empleado. Primero debe registrarse como empleado.";
-            $stmt_check_emp->close();
+        // Validaciones adicionales
+        if (!validate_email($email)) {
+            $mensaje = "El email no es válido.";
+        } elseif (!validate_dni($dni)) {
+            $mensaje = "El DNI debe tener 8 dígitos.";
         } else {
-            $stmt_check_emp->close();
-            
-            // Verificar si ya existe un administrador con ese usuario, email o DNI
-            $stmt_check = $conn->prepare("SELECT id FROM Administrador WHERE usuario = ? OR email = ? OR dni = ?");
-            $stmt_check->bind_param("sss", $usuario, $email, $dni);
-            $stmt_check->execute();
-            $result_check = $stmt_check->get_result();
-            
-            if($result_check->num_rows > 0){
-                $mensaje = "Ya existe un administrador con ese usuario, email o DNI.";
-                $stmt_check->close();
+            // Verificar que el usuario exista en Empleado
+            if (!user_exists($conn, 'Empleado', 'usuario', $usuario)) {
+                $mensaje = "El usuario no existe en la tabla Empleado. Primero debe registrarse como empleado.";
             } else {
-                $stmt_check->close();
-                
-                // Hash de la contraseña
-                $contrasena_hash = password_hash($contrasena, PASSWORD_BCRYPT);
-
-                // El ID se generará automáticamente por el trigger
-                $sql = "INSERT INTO Administrador (nombres, apellidos, dni, email, telefono, contrasena, usuario)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)";
-                $stmt = $conn->prepare($sql);
-
-                if ($stmt) {
-                    $stmt->bind_param("sssssss", $nombres, $apellidos, $dni, $email, $telefono, $contrasena_hash, $usuario);
-                    if ($stmt->execute()) {
-                        $mensaje = "Administrador registrado exitosamente. ¡Bienvenido, " . htmlspecialchars($nombres) . "! <a href='login_admin.php'>Inicia sesión aquí</a>";
-                    } else {
-                        $mensaje = "Error al registrar administrador: " . $stmt->error;
-                    }
-                    $stmt->close();
+                // Verificar si ya existe un administrador con ese usuario, email o DNI
+                if (user_exists($conn, 'Administrador', 'usuario', $usuario) || 
+                    user_exists($conn, 'Administrador', 'email', $email) || 
+                    user_exists($conn, 'Administrador', 'dni', $dni)) {
+                    $mensaje = "Ya existe un administrador con ese usuario, email o DNI.";
                 } else {
-                    $mensaje = "Error en la conexión con la base de datos.";
+                    // Hash de la contraseña
+                    $contrasena_hash = password_hash($contrasena, PASSWORD_BCRYPT);
+
+                    // El ID se generará automáticamente por el trigger
+                    $sql = "INSERT INTO Administrador (nombres, apellidos, dni, email, telefono, contrasena, usuario)
+                            VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    $stmt = $conn->prepare($sql);
+
+                    if ($stmt) {
+                        $stmt->bind_param("sssssss", $nombres, $apellidos, $dni, $email, $telefono, $contrasena_hash, $usuario);
+                        if ($stmt->execute()) {
+                            $mensaje = "Administrador registrado exitosamente. ¡Bienvenido, " . htmlspecialchars($nombres) . "! <a href='login_admin.php'>Inicia sesión aquí</a>";
+                        } else {
+                            $mensaje = "Error al registrar administrador: " . htmlspecialchars($stmt->error);
+                        }
+                        $stmt->close();
+                    } else {
+                        $mensaje = "Error en la conexión con la base de datos.";
+                    }
                 }
             }
         }

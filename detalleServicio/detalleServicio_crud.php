@@ -1,56 +1,62 @@
 <?php
-// Verificar sesión de empleado o administrador
-session_start();
-if(!isset($_SESSION['usuario_empleado']) && !isset($_SESSION['usuario_admin'])){
-    header("Location: ../index.html");
-    exit();
-}
+require_once("../includes/functions.php");
+check_permission(['empleado', 'admin']);
 
 include("../conexion.php");
 
 // Crear
 if (isset($_POST['crear'])) {
-    $id = trim($_POST['id']);
-    $idHab = trim($_POST['idHab']);
-    $idEmp = trim($_POST['idEmp']);
-    $idServicio = trim($_POST['idServicio']);
+    $id = sanitize_input($_POST['id'] ?? '');
+    $idHab = sanitize_input($_POST['idHab']);
+    $idEmp = sanitize_input($_POST['idEmp']);
+    $idServicio = sanitize_input($_POST['idServicio']);
     $pago = isset($_POST['pago']) ? 1 : 0;
+    
+    if (empty($idHab) || empty($idEmp) || empty($idServicio)) {
+        show_error_and_redirect("Todos los campos son obligatorios", "detallesServicios.php");
+    }
 
-    $stmt = $conn->prepare("INSERT INTO detalleServicioHob (id, idHab, idEmp, idServicio, pago)
-            VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssi", $id, $idHab, $idEmp, $idServicio, $pago);
-    $stmt->execute();
-    $stmt->close();
-    header("Location: detallesServicios.php");
-    exit();
+    // Si el ID está vacío, se generará automáticamente por el trigger
+    if (empty($id)) {
+        $sql = "INSERT INTO detalleServicioHob (idHab, idEmp, idServicio, pago) VALUES (?, ?, ?, ?)";
+        $types = "sssi";
+        $params = [$idHab, $idEmp, $idServicio, $pago];
+    } else {
+        $sql = "INSERT INTO detalleServicioHob (id, idHab, idEmp, idServicio, pago) VALUES (?, ?, ?, ?, ?)";
+        $types = "ssssi";
+        $params = [$id, $idHab, $idEmp, $idServicio, $pago];
+    }
+    
+    execute_crud($conn, $sql, $types, $params, "detallesServicios.php", "Error al crear el detalle de servicio");
 }
 
 // Actualizar
 if (isset($_POST['actualizar'])) {
-    $id = trim($_POST['id']);
-    $idHab = trim($_POST['idHab']);
-    $idEmp = trim($_POST['idEmp']);
-    $idServicio = trim($_POST['idServicio']);
+    $id = sanitize_input($_POST['id']);
+    $idHab = sanitize_input($_POST['idHab']);
+    $idEmp = sanitize_input($_POST['idEmp']);
+    $idServicio = sanitize_input($_POST['idServicio']);
     $pago = isset($_POST['pago']) ? 1 : 0;
+    
+    if (empty($idHab) || empty($idEmp) || empty($idServicio)) {
+        show_error_and_redirect("Todos los campos son obligatorios", "detallesServicios.php");
+    }
 
-    $stmt = $conn->prepare("UPDATE detalleServicioHob 
-            SET idHab=?, idEmp=?, idServicio=?, pago=?
-            WHERE id=?");
-    $stmt->bind_param("sssii", $idHab, $idEmp, $idServicio, $pago, $id);
-    $stmt->execute();
-    $stmt->close();
-    header("Location: detallesServicios.php");
-    exit();
+    $sql = "UPDATE detalleServicioHob SET idHab=?, idEmp=?, idServicio=?, pago=? WHERE id=?";
+    $types = "sssii";
+    $params = [$idHab, $idEmp, $idServicio, $pago, $id];
+    
+    execute_crud($conn, $sql, $types, $params, "detallesServicios.php", "Error al actualizar el detalle de servicio");
 }
 
 // Eliminar
 if (isset($_GET['eliminar'])) {
-    $id = trim($_GET['eliminar']);
-    $stmt = $conn->prepare("DELETE FROM detalleServicioHob WHERE id=?");
-    $stmt->bind_param("s", $id);
-    $stmt->execute();
-    $stmt->close();
-    header("Location: detallesServicios.php");
-    exit();
+    $id = sanitize_input($_GET['eliminar']);
+    
+    $sql = "DELETE FROM detalleServicioHob WHERE id=?";
+    $types = "s";
+    $params = [$id];
+    
+    execute_crud($conn, $sql, $types, $params, "detallesServicios.php", "Error al eliminar el detalle de servicio");
 }
 ?>

@@ -21,17 +21,19 @@ $result = $conn->query("SELECT * FROM Servicios ORDER BY id ASC");
   <div class="container">
     <h1>Gestión de Servicios</h1>
 
+    <?php if(isset($_SESSION['usuario_empleado']) || isset($_SESSION['usuario_admin'])): ?>
     <form action="servicio_crud.php" method="POST" class="formulario">
       <h2>Registrar nuevo servicio</h2>
       <div class="input-group">
-        <input type="text" name="id" placeholder="ID del servicio" required>
+        <input type="text" name="id" placeholder="ID del servicio (opcional, se genera automáticamente)">
         <input type="text" name="descripcion" placeholder="Descripción" required>
       </div>
       <div class="input-group">
-        <input type="number" step="0.01" name="costo" placeholder="Costo (S/.)" required>
+        <input type="number" step="0.01" min="0.01" name="costo" placeholder="Costo (S/.)" required>
       </div>
       <button type="submit" name="crear" class="btn">Agregar Servicio</button>
     </form>
+    <?php endif; ?>
 
     <h2>Lista de Servicios</h2>
     <table>
@@ -47,12 +49,12 @@ $result = $conn->query("SELECT * FROM Servicios ORDER BY id ASC");
         <?php while ($row = $result->fetch_assoc()): ?>
         <tr>
           <form action="servicio_crud.php" method="POST">
-            <td><input type="text" name="id" value="<?= $row['id'] ?>" readonly></td>
-            <td><input type="text" name="descripcion" value="<?= $row['descripcion'] ?>"></td>
-            <td><input type="number" step="0.01" name="costo" value="<?= $row['costo'] ?>"></td>
+            <td><input type="text" name="id" value="<?= htmlspecialchars($row['id']) ?>" readonly></td>
+            <td><input type="text" name="descripcion" value="<?= htmlspecialchars($row['descripcion']) ?>"></td>
+            <td><input type="number" step="0.01" name="costo" value="<?= htmlspecialchars($row['costo']) ?>"></td>
             <td>
               <button type="submit" name="actualizar" class="btn actualizar">✏️</button>
-              <a href="servicio_crud.php?eliminar=<?= $row['id'] ?>" class="btn eliminar">🗑️</a>
+              <a href="servicio_crud.php?eliminar=<?= htmlspecialchars($row['id']) ?>" class="btn eliminar" onclick="return confirm('¿Estás seguro de eliminar este servicio?')">🗑️</a>
             </td>
           </form>
         </tr>

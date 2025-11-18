@@ -1,8 +1,8 @@
-USE hotelds;
-    -- ==========================================================
-    -- TABLA: Empleado
-    -- ==========================================================
-CREATE TABLE Empleado(
+USE hostalds;
+-- ==========================================================
+-- TABLA: Empleado
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS Empleado(
     id VARCHAR(20) PRIMARY KEY,
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE Empleado(
 -- ==========================================================
 -- TABLA: Administrador
 -- ==========================================================
-CREATE TABLE Administrador(
+CREATE TABLE IF NOT EXISTS Administrador(
     id VARCHAR(20) PRIMARY KEY,
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE Administrador(
 -- ==========================================================
 -- TABLA: Cliente
 -- ==========================================================
-CREATE TABLE Cliente(
+CREATE TABLE IF NOT EXISTS Cliente(
     id VARCHAR(20) PRIMARY KEY,
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
@@ -43,16 +43,16 @@ CREATE TABLE Cliente(
 -- ==========================================================
 -- TABLA: Habitaciones
 -- ==========================================================
-CREATE TABLE Habitaciones(
+CREATE TABLE IF NOT EXISTS Habitaciones(
     codigo VARCHAR(20) PRIMARY KEY,
     tipo VARCHAR(50) NOT NULL,
-    estado VARCHAR(20) NOT NULL,
+    estado VARCHAR(20) NOT NULL DEFAULT 'Disponible',
     descripcion VARCHAR(255)
 );
 -- ==========================================================
 -- TABLA: Servicios
 -- ==========================================================
-CREATE TABLE Servicios(
+CREATE TABLE IF NOT EXISTS Servicios(
     id VARCHAR(20) PRIMARY KEY,
     descripcion VARCHAR(255) NOT NULL,
     costo DECIMAL(10, 2) NOT NULL
@@ -60,28 +60,31 @@ CREATE TABLE Servicios(
 -- ==========================================================
 -- TABLA: tipoPago
 -- ==========================================================
-CREATE TABLE tipoPago(
+CREATE TABLE IF NOT EXISTS tipoPago(
     id VARCHAR(20) PRIMARY KEY,
     descripcion VARCHAR(255) NOT NULL
 );
 -- ==========================================================
 -- TABLA: detalleReserva
 -- ==========================================================
-CREATE TABLE detalleReserva(
+CREATE TABLE IF NOT EXISTS detalleReserva(
     id VARCHAR(20) PRIMARY KEY,
-    fecha DATE NOT NULL,
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE NOT NULL,
     idCli VARCHAR(20) NOT NULL,
     idHab VARCHAR(20) NOT NULL,
     pago BOOLEAN DEFAULT FALSE,
     idTipoPago VARCHAR(20) NOT NULL,
+    es_checkin_directo BOOLEAN DEFAULT FALSE,
     FOREIGN KEY(idCli) REFERENCES Cliente(id),
     FOREIGN KEY(idHab) REFERENCES Habitaciones(codigo),
-    FOREIGN KEY(idTipoPago) REFERENCES tipoPago(id)
+    FOREIGN KEY(idTipoPago) REFERENCES tipoPago(id),
+    CHECK (fecha_fin >= fecha_inicio)
 );
 -- ==========================================================
 -- TABLA: detalleServicioHob
 -- ==========================================================
-CREATE TABLE detalleServicioHob(
+CREATE TABLE IF NOT EXISTS detalleServicioHob(
     id VARCHAR(20) PRIMARY KEY,
     idHab VARCHAR(20) NOT NULL,
     idEmp VARCHAR(20) NOT NULL,
@@ -90,4 +93,4 @@ CREATE TABLE detalleServicioHob(
     FOREIGN KEY(idHab) REFERENCES Habitaciones(codigo),
     FOREIGN KEY(idEmp) REFERENCES Empleado(id),
     FOREIGN KEY(idServicio) REFERENCES Servicios(id)
-)
+);

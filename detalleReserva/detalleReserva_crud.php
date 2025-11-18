@@ -1,58 +1,80 @@
 <?php
-// Verificar sesión de empleado o administrador (solo ellos pueden gestionar reservas)
-session_start();
-if(!isset($_SESSION['usuario_empleado']) && !isset($_SESSION['usuario_admin'])){
-    header("Location: ../index.html");
-    exit();
-}
+require_once("../includes/functions.php");
+check_permission(['empleado', 'admin']);
 
 include("../conexion.php");
 
 // Crear
 if (isset($_POST['crear'])) {
-    $id = trim($_POST['id']);
-    $fecha = trim($_POST['fecha']);
-    $idCli = trim($_POST['idCli']);
-    $idHab = trim($_POST['idHab']);
+    $id = sanitize_input($_POST['id'] ?? '');
+    $fecha_inicio = sanitize_input($_POST['fecha_inicio']);
+    $fecha_fin = sanitize_input($_POST['fecha_fin']);
+    $idCli = sanitize_input($_POST['idCli']);
+    $idHab = sanitize_input($_POST['idHab']);
     $pago = isset($_POST['pago']) ? 1 : 0;
-    $idTipoPago = trim($_POST['idTipoPago']);
+    $idTipoPago = sanitize_input($_POST['idTipoPago']);
+    $es_checkin_directo = isset($_POST['es_checkin_directo']) ? 1 : 0;
 
-    $stmt = $conn->prepare("INSERT INTO detalleReserva (id, fecha, idCli, idHab, pago, idTipoPago)
-            VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssis", $id, $fecha, $idCli, $idHab, $pago, $idTipoPago);
-    $stmt->execute();
-    $stmt->close();
-    header("Location: detallesReservas.php");
-    exit();
+    // Validar que fecha_fin sea mayor o igual a fecha_inicio
+    if (!validate_date_range($fecha_inicio, $fecha_fin)) {
+        show_error_and_redirect("La fecha de fin debe ser mayor o igual a la fecha de inicio", "detallesReservas.php");
+    }
+
+    // Verificar disponibilidad de la habitación
+    if (!check_habitacion_disponible($conn, $idHab, $fecha_inicio, $fecha_fin)) {
+        show_error_and_redirect("La habitación ya está reservada en esas fechas", "detallesReservas.php");
+    }
+
+    // Si el ID está vacío, se generará automáticamente por el trigger
+    if (empty($id)) {
+        $sql = "INSERT INTO detalleReserva (fecha_inicio, fecha_fin, idCli, idHab, pago, idTipoPago, es_checkin_directo) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $types = "ssssisi";
+        $params = [$fecha_inicio, $fecha_fin, $idCli, $idHab, $pago, $idTipoPago, $es_checkin_directo];
+    } else {
+        $sql = "INSERT INTO detalleReserva (id, fecha_inicio, fecha_fin, idCli, idHab, pago, idTipoPago, es_checkin_directo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $types = "sssssisi";
+        $params = [$id, $fecha_inicio, $fecha_fin, $idCli, $idHab, $pago, $idTipoPago, $es_checkin_directo];
+    }
+    
+    execute_crud($conn, $sql, $types, $params, "detallesReservas.php", "Error al crear la reserva");
 }
 
 // Actualizar
 if (isset($_POST['actualizar'])) {
-    $id = trim($_POST['id']);
-    $fecha = trim($_POST['fecha']);
-    $idCli = trim($_POST['idCli']);
-    $idHab = trim($_POST['idHab']);
+    $id = sanitize_input($_POST['id']);
+    $fecha_inicio = sanitize_input($_POST['fecha_inicio']);
+    $fecha_fin = sanitize_input($_POST['fecha_fin']);
+    $idCli = sanitize_input($_POST['idCli']);
+    $idHab = sanitize_input($_POST['idHab']);
     $pago = isset($_POST['pago']) ? 1 : 0;
-    $idTipoPago = trim($_POST['idTipoPago']);
+    $idTipoPago = sanitize_input($_POST['idTipoPago']);
+    $es_checkin_directo = isset($_POST['es_checkin_directo']) ? 1 : 0;
 
-    $stmt = $conn->prepare("UPDATE detalleReserva 
-            SET fecha=?, idCli=?, idHab=?, pago=?, idTipoPago=?
-            WHERE id=?");
-    $stmt->bind_param("sssiss", $fecha, $idCli, $idHab, $pago, $idTipoPago, $id);
-    $stmt->execute();
-    $stmt->close();
-    header("Location: detallesReservas.php");
-    exit();
+    // Validar que fecha_fin sea mayor o igual a fecha_inicio
+    if (!validate_date_range($fecha_inicio, $fecha_fin)) {
+        show_error_and_redirect("La fecha de fin debe ser mayor o igual a la fecha de inicio", "detallesReservas.php");
+    }
+
+    // Verificar disponibilidad de la habitación (excluyendo la reserva actual)
+    if (!check_habitacion_disponible($conn, $idHab, $fecha_inicio, $fecha_fin, $id)) {
+        show_error_and_redirect("La habitación ya está reservada en esas fechas", "detallesReservas.php");
+    }
+
+    $sql = "UPDATE detalleReserva SET fecha_inicio=?, fecha_fin=?, idCli=?, idHab=?, pago=?, idTipoPago=?, es_checkin_directo=? WHERE id=?";
+    $types = "ssssisss";
+    $params = [$fecha_inicio, $fecha_fin, $idCli, $idHab, $pago, $idTipoPago, $es_checkin_directo, $id];
+    
+    execute_crud($conn, $sql, $types, $params, "detallesReservas.php", "Error al actualizar la reserva");
 }
 
 // Eliminar
 if (isset($_GET['eliminar'])) {
-    $id = trim($_GET['eliminar']);
-    $stmt = $conn->prepare("DELETE FROM detalleReserva WHERE id=?");
-    $stmt->bind_param("s", $id);
-    $stmt->execute();
-    $stmt->close();
-    header("Location: detallesReservas.php");
-    exit();
+    $id = sanitize_input($_GET['eliminar']);
+    
+    $sql = "DELETE FROM detalleReserva WHERE id=?";
+    $types = "s";
+    $params = [$id];
+    
+    execute_crud($conn, $sql, $types, $params, "detallesReservas.php", "Error al eliminar la reserva");
 }
 ?>

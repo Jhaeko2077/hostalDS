@@ -24,7 +24,7 @@ $result = $conn->query("SELECT * FROM tipoPago ORDER BY id ASC");
     <form action="tipoPago_crud.php" method="POST" class="formulario">
       <h2>Registrar nuevo tipo de pago</h2>
       <div class="input-group">
-        <input type="text" name="id" placeholder="ID del tipo de pago" required>
+        <input type="text" name="id" placeholder="ID del tipo de pago (opcional, se genera automáticamente)">
         <input type="text" name="descripcion" placeholder="Descripción" required>
       </div>
       <button type="submit" name="crear" class="btn">Agregar Tipo de Pago</button>
@@ -43,11 +43,11 @@ $result = $conn->query("SELECT * FROM tipoPago ORDER BY id ASC");
         <?php while ($row = $result->fetch_assoc()): ?>
         <tr>
           <form action="tipoPago_crud.php" method="POST">
-            <td><input type="text" name="id" value="<?= $row['id'] ?>" readonly></td>
-            <td><input type="text" name="descripcion" value="<?= $row['descripcion'] ?>"></td>
+            <td><input type="text" name="id" value="<?= htmlspecialchars($row['id']) ?>" readonly></td>
+            <td><input type="text" name="descripcion" value="<?= htmlspecialchars($row['descripcion']) ?>"></td>
             <td>
               <button type="submit" name="actualizar" class="btn actualizar">✏️</button>
-              <a href="tipoPago_crud.php?eliminar=<?= $row['id'] ?>" class="btn eliminar">🗑️</a>
+              <a href="tipoPago_crud.php?eliminar=<?= htmlspecialchars($row['id']) ?>" class="btn eliminar" onclick="return confirm('¿Estás seguro de eliminar este tipo de pago?')">🗑️</a>
             </td>
           </form>
         </tr>
